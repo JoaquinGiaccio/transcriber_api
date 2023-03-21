@@ -27,32 +27,22 @@ async def receive_file(file: UploadFile = File(...)):
 @app.post("/transcribe")
 async def transcribe_file(file: UploadFile = File(...)):
 
+    # Upload File
+    print('Uploading file...')
+
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    print(dir_path)
     filename = f'{dir_path}/uploads/{time.time()}-{file.filename}'
     with open(filename, 'wb') as f:
         content = await file.read()
         f.write(content)
+    print('File saved as: ', filename)
 
-    #detected_language, mel = get_language(whisper_model, UploadFile.file)
-    #transcription = transcriber(whisper_model, mel)
-    audio = whisper.load_audio(filename)
-    audio = whisper.pad_or_trim(audio)
+    print('Getting audio language...')
+    detected_language, mel = get_language(whisper_model, filename)
+    print('Transcribing...')
+    transcription = transcriber(whisper_model, mel)
 
-    # make log-Mel spectrogram and move to the same device as the model
-    mel = whisper.log_mel_spectrogram(audio).to(whisper_model.device)
-
-    # detect the spoken language
-    _, probs = whisper_model.detect_language(mel)
-    #print(f"Detected language: {max(probs, key=probs.get)}")
-    lang_set = {max(probs, key=probs.get)}
-    # decode the audio
-    options = whisper.DecodingOptions(fp16=False)
-    result = whisper.decode(whisper_model, mel, options)
-
-    transcription = result.text
-
-    print(transcription)
+    print('Transcrition: 'transcription)
 
     return transcription
 
