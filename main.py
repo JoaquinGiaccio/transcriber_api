@@ -42,7 +42,7 @@ async def transcribe_file(file: UploadFile = File(...)):
     print('Transcribing...')
     transcription = transcriber(whisper_model, mel)
 
-    print('Transcrition: 'transcription)
+    print('Transcrition: ', transcription)
 
     return transcription
 
