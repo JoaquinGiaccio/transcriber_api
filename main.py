@@ -6,6 +6,7 @@ import time
 import os
 
 app = FastAPI()
+LANGUAGE = "es"
 
 
 @app.on_event("startup")
@@ -39,10 +40,14 @@ async def transcribe_file(file: UploadFile = File(...)):
 
     print('Getting audio language...')
     detected_language, mel = get_language(whisper_model, filename)
-    print('Transcribing...')
-    transcription = transcriber(whisper_model, mel)
 
-    print('Transcrition: ', transcription)
+    if str(detected_language) != LANGUAGE:
+        transcription = "ERROR: wrong language"
+    else:
+        print('Transcribing...')
+        transcription = transcriber(whisper_model, mel)
+
+        print('Transcrition: ', transcription)
 
     return transcription
 
@@ -76,4 +81,4 @@ def transcriber(model, mel):
     return transcription
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
